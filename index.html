@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Discovery Dossier</title>
+<style>
+  :root{
+    --ink:#1c2430;
+    --ink-soft:#4a5568;
+    --paper:#faf7f0;
+    --paper-line:#e4ddc9;
+    --card:#ffffff;
+    --navy:#1f3a5f;
+    --navy-deep:#142942;
+    --maize:#c99a2e;
+    --maize-soft:#f3e6c4;
+    --rule:#d8d0b8;
+    --focus:#1f3a5f;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --sans: "Avenir Next", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: "IBM Plex Mono", "Courier New", monospace;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    font-family:var(--sans);
+    color:var(--ink);
+    line-height:1.5;
+  }
+
+  .sheet{
+    max-width:860px;
+    margin:0 auto;
+    padding:48px 32px 80px;
+  }
+
+  /* Header / masthead */
+  .masthead{
+    border-bottom:3px double var(--navy);
+    padding-bottom:20px;
+    margin-bottom:36px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    flex-wrap:wrap;
+    gap:16px;
+  }
+  .masthead .eyebrow{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--maize);
+    background:var(--navy-deep);
+    padding:4px 10px;
+    border-radius:2px;
+  }
+  .masthead h1{
+    font-family:var(--serif);
+    font-size:34px;
+    font-weight:600;
+    margin:8px 0 4px;
+    color:var(--navy-deep);
+    letter-spacing:.01em;
+  }
+  .masthead .sub{
+    font-size:14px;
+    color:var(--ink-soft);
+    max-width:52ch;
+  }
+  .masthead .file-no{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--ink-soft);
+    text-align:right;
+    white-space:nowrap;
+  }
+
+  /* Section blocks */
+  .section{
+    margin-bottom:38px;
+  }
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    gap:12px;
+    margin-bottom:6px;
+  }
+  .section-num{
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:20px;
+    color:var(--maize);
+    min-width:28px;
+  }
+  .section-title{
+    font-family:var(--serif);
+    font-size:21px;
+    font-weight:600;
+    color:var(--navy-deep);
+  }
+  .section-desc{
+    font-size:13px;
+    color:var(--ink-soft);
+    margin:0 0 16px 40px;
+    max-width:60ch;
+  }
+  .section hr.rule{
+    border:none;
+    border-top:1px solid var(--rule);
+    margin:0 0 20px;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px 24px;
+    margin-left:40px;
+  }
+  .grid.single{ grid-template-columns:1fr; }
+  @media (max-width:640px){
+    .grid{ grid-template-columns:1fr; }
+    .section-desc, .grid{ margin-left:0; }
+  }
+
+  .field{ display:flex; flex-direction:column; gap:6px; }
+  .field.full{ grid-column:1 / -1; }
+
+  label{
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--navy);
+    letter-spacing:.01em;
+  }
+  label .hint{
+    font-weight:400;
+    color:var(--ink-soft);
+    font-style:italic;
+  }
+
+  input[type=text], input[type=email], input[type=tel], input[type=number], select, textarea{
+    font-family:var(--sans);
+    font-size:14.5px;
+    color:var(--ink);
+    background:var(--card);
+    border:1px solid var(--rule);
+    border-radius:3px;
+    padding:9px 11px;
+    width:100%;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  textarea{ resize:vertical; min-height:70px; font-family:var(--sans); }
+  input:focus, select:focus, textarea:focus{
+    outline:none;
+    border-color:var(--focus);
+    box-shadow:0 0 0 3px rgba(31,58,95,0.12);
+  }
+  input::placeholder, textarea::placeholder{ color:#9aa3af; }
+
+  .choice-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .choice-row label.chip{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:13px;
+    font-weight:500;
+    color:var(--ink);
+    background:var(--card);
+    border:1px solid var(--rule);
+    border-radius:20px;
+    padding:6px 13px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .choice-row input{ width:auto; accent-color:var(--navy); }
+  .choice-row label.chip:has(input:checked){
+    background:var(--maize-soft);
+    border-color:var(--maize);
+    color:var(--navy-deep);
+  }
+
+  .scale{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .scale .ends{
+    font-size:11px;
+    color:var(--ink-soft);
+    width:70px;
+  }
+  .scale .ends.right{ text-align:right; }
+  .scale input[type=range]{ flex:1; accent-color:var(--navy); }
+
+  /* Footer / submit */
+  .submit-block{
+    margin-top:48px;
+    padding-top:24px;
+    border-top:3px double var(--navy);
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .recaptcha-row{
+    margin-top:36px;
+    display:flex;
+    justify-content:flex-start;
+  }
+  .submit-note{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    max-width:44ch;
+  }
+  .btns{ display:flex; gap:10px; flex-wrap:wrap; }
+  button{
+    font-family:var(--sans);
+    font-size:14px;
+    font-weight:600;
+    border-radius:4px;
+    padding:12px 22px;
+    cursor:pointer;
+    border:1px solid transparent;
+    transition:transform .1s ease, opacity .15s ease;
+  }
+  button:active{ transform:translateY(1px); }
+  .btn-primary{
+    background:var(--navy-deep);
+    color:var(--maize-soft);
+  }
+  .btn-primary:hover{ background:var(--navy); }
+  .btn-secondary{
+    background:transparent;
+    border-color:var(--rule);
+    color:var(--navy-deep);
+  }
+  .btn-secondary:hover{ border-color:var(--navy); }
+
+  /* Output panel */
+  #output-wrap{ display:none; margin-top:36px; }
+  #output-wrap.show{ display:block; }
+  .output-head{
+    font-family:var(--serif);
+    font-size:19px;
+    color:var(--navy-deep);
+    margin-bottom:10px;
+  }
+  #output{
+    background:var(--navy-deep);
+    color:#e9ecef;
+    font-family:var(--mono);
+    font-size:12.5px;
+    line-height:1.6;
+    padding:22px;
+    border-radius:6px;
+    white-space:pre-wrap;
+    max-height:480px;
+    overflow-y:auto;
+  }
+  .required::after{
+    content:" *";
+    color:var(--maize);
+  }
+
+  .privacy-note{
+    margin-top:48px;
+    padding-top:20px;
+    border-top:1px solid var(--rule);
+  }
+  .privacy-head{
+    font-family:var(--mono);
+    font-size:10.5px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:10px;
+  }
+  .privacy-note p{
+    font-size:11.5px;
+    line-height:1.6;
+    color:var(--ink-soft);
+    max-width:70ch;
+    margin:0 0 10px;
+  }
+  .privacy-note p:last-child{ margin-bottom:0; }
+  .privacy-note strong{ color:var(--ink); font-weight:600; }
+
+  /* Success screen */
+  #success-screen{
+    display:none;
+    text-align:center;
+    padding:64px 32px;
+    border:2px solid #bfd9ae;
+    background:#f3f8ee;
+    border-radius:10px;
+    margin-bottom:36px;
+  }
+  #success-screen.show{ display:block; }
+  #success-screen .check{
+    width:60px; height:60px;
+    margin:0 auto 20px;
+    border-radius:50%;
+    background:#4f6a45;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:30px;
+    line-height:1;
+  }
+  #success-screen h2{
+    font-family:var(--serif);
+    font-size:26px;
+    color:var(--navy-deep);
+    margin:0 0 10px;
+  }
+  #success-screen p{
+    font-size:14px;
+    color:var(--ink-soft);
+    max-width:46ch;
+    margin:0 auto 22px;
+  }
+</style>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+<div class="sheet">
+
+  <div id="success-screen">
+    <div class="check">&#10003;</div>
+    <h2>Thank you — your intake form has been submitted.</h2>
+    <p>We've received your information and saved it to our records. A member of the Think4SAT team will reach out shortly to schedule your first Discovery Program session.</p>
+    <div class="btns" style="justify-content:center;">
+      <button type="button" class="btn-secondary" id="view-summary-btn">View submitted summary</button>
+      <button type="button" class="btn-primary" id="submit-another-btn">Submit another response</button>
+    </div>
+  </div>
+
+  <div class="masthead">
+    <div>
+      <div class="eyebrow">Student Discovery Dossier</div>
+      <h1>College Advising Intake</h1>
+      <div class="sub">A working profile of interests, background, and goals — used to identify where a student is likely to shine and to build a personalized roadmap.</div>
+    </div>
+    <div class="file-no">FILE OPENED<br><span id="today-date"></span></div>
+  </div>
+
+  <div id="form-wrap">
+  <form id="intake-form">
+    <!-- Honeypot: hidden from real users via CSS; bots that auto-fill every
+         field on a page will fill this too, which flags the submission as
+         spam server-side and client-side. Real users never see or touch it. -->
+    <div style="position:absolute; left:-9999px; top:-9999px;" aria-hidden="true">
+      <label>Leave this field blank</label>
+      <input type="text" name="website" tabindex="-1" autocomplete="off">
+    </div>
+
+    <div id="draft-note" style="font-family:var(--mono); font-size:11px; color:var(--ink-soft); margin-bottom:20px; min-height:14px;"></div>
+
+    <!-- 1 -->
+    <div class="section">
+      <div class="section-head"><span class="section-num">I.</span><span class="section-title">Basic Information</span></div>
+      <hr class="rule">
+      <div class="grid">
+        <div class="field"><label class="required">Student full name</label><input type="text" name="student_name" required></div>
+        <div class="field"><label>Preferred name / nickname</label><input type="text" name="preferred_name"></div>
+        <div class="field"><label>High school</label><input type="text" name="school"></div>
+        <div class="field"><label>Current grade level</label>
+          <select name="grade_level">
+            <option value="">Select…</option>
+            <option>9th grade</option>
+            <option>10th grade</option>
+            <option>11th grade</option>
+            <option>12th grade</option>
+          </select>
+        </div>
+        <div class="field"><label>Parent / guardian name</label><input type="text" name="parent_name"></div>
+        <div class="field"><label class="required">Best contact (email or phone)</label><input type="text" name="contact" required></div>
+        <div class="field"><label>Track / program (IB, AP, other)</label><input type="text" name="program_track" placeholder="e.g. IB Diploma, AP-heavy, dual enrollment"></div>
+        <div class="field"><label>Unweighted GPA (if known)</label><input type="text" name="gpa"></div>
+      </div>
+    </div>
+
+    <!-- 2 -->
+    <div class="section">
+      <div class="section-head"><span class="section-num">II.</span><span class="section-title">Academic Background</span></div>
+      <p class="section-desc">Current standing and how the student experiences school day-to-day.</p>
+      <hr class="rule">
+      <div class="grid">
+        <div class="field full"><label>Courses currently enrolled in</label><textarea name="current_courses" placeholder="List this year's classes"></textarea></div>
+        <div class="field full"><label>Subjects the student finds easiest / most enjoyable</label><textarea name="strong_subjects"></textarea></div>
+        <div class="field full"><label>Subjects that feel hardest or least enjoyable</label><textarea name="weak_subjects"></textarea></div>
+        <div class="field"><label>Standardized testing plan</label>
+          <select name="testing_plan">
+            <option value="">Select…</option>
+            <option>SAT planned</option>
+            <option>ACT planned</option>
+            <option>Both / undecided</option>
+            <option>Test-optional, not planning to submit</option>
+            <option>Not yet decided</option>
+          </select>
+        </div>
+        <div class="field"><label>Highest score so far (if any)</label><input type="text" name="test_scores"></div>
+        <div class="field full"><label>Any academic competitions attempted (AMC, science olympiad, debate, etc.)</label><textarea name="competitions"></textarea></div>
+      </div>
+    </div>
+
+    <!-- 3 -->
+    <div class="section">
+      <div class="section-head"><span class="section-num">III.</span><span class="section-title">Interests & Curiosities</span></div>
+      <p class="section-desc">This is the heart of the profile — what genuinely pulls the student's attention, inside or outside class.</p>
+      <hr class="rule">
+      <div class="grid">
+        <div class="field full"><label>When you have completely free time, what do you actually choose to do?</label><textarea name="free_time"></textarea></div>
+        <div class="field full"><label>Topics you could talk about for an hour without getting bored</label><textarea name="deep_interests"></textarea></div>
+        <div class="field full"><label>Is there a project, problem, or question you've pursued just because you wanted to (not for a grade)?</label><textarea name="self_directed_project"></textarea></div>
+        <div class="field">
+          <label>General interest area (choose all that resonate)</label>
+          <div class="choice-row">
+            <label class="chip"><input type="checkbox" name="interest_area" value="STEM/Math"> STEM / Math</label>
+            <label class="chip"><input type="checkbox" name="interest_area" value="Engineering"> Engineering</label>
+            <label class="chip"><input type="checkbox" name="interest_area" value="Life Sciences/Medicine"> Life Sci / Med</label>
+            <label class="chip"><input type="checkbox" name="interest_area" value="Business/Finance"> Business / Finance</label>
+            <label class="chip"><input type="checkbox" name="interest_area" value="Law/Policy"> Law / Policy</label>
+            <label class="chip"><input type="checkbox" name="interest_area" value="Humanities"> Humanities</label>
+            <label class="chip"><input type="checkbox" name="interest_area" value="Arts/Design"> Arts / Design</label>
+            <label class="chip"><input type="checkbox" name="interest_area" value="Computer Science"> Computer Science</label>
+            <label class="chip"><input type="checkbox" name="interest_area" value="Social Sciences"> Social Sciences</label>
+            <label class="chip"><input type="checkbox" name="interest_area" value="Undecided"> Undecided</label>
+          </div>
+        </div>
+        <div class="field full"><label>Books, podcasts, channels, or people who've shaped your thinking</label><textarea name="influences"></textarea></div>
+      </div>
+    </div>
+
+    <!-- 4 -->
+    <div class="section">
+      <div class="section-head"><span class="section-num">IV.</span><span class="section-title">Activities & Achievements</span></div>
+      <p class="section-desc">Extracurriculars, leadership, work, and recognitions — including things that don't feel "impressive" but matter to the student.</p>
+      <hr class="rule">
+      <div class="grid">
+        <div class="field full"><label>Clubs, teams, or organizations (with years involved)</label><textarea name="activities_list"></textarea></div>
+        <div class="field full"><label>Leadership roles held</label><textarea name="leadership"></textarea></div>
+        <div class="field full"><label>Awards, honors, or recognitions</label><textarea name="awards"></textarea></div>
+        <div class="field full"><label>Jobs, internships, research, or volunteer work</label><textarea name="work_research"></textarea></div>
+        <div class="field"><label>Weekly time spent on activities outside school</label>
+          <select name="time_commitment">
+            <option value="">Select…</option>
+            <option>Under 5 hours</option>
+            <option>5–10 hours</option>
+            <option>10–20 hours</option>
+            <option>20+ hours</option>
+          </select>
+        </div>
+        <div class="field"><label>Which single activity feels most "you"?</label><input type="text" name="signature_activity"></div>
+      </div>
+    </div>
+
+    <!-- 5 -->
+    <div class="section">
+      <div class="section-head"><span class="section-num">V.</span><span class="section-title">Personal & Family Context</span></div>
+      <p class="section-desc">Context that shapes the student's story, constraints, and opportunities — kept confidential and used only to advise well.</p>
+      <hr class="rule">
+      <div class="grid">
+        <div class="field"><label>Languages spoken at home</label><input type="text" name="languages"></div>
+        <div class="field"><label>First in family to attend college?</label>
+          <select name="first_gen"><option value="">Select…</option><option>Yes</option><option>No</option><option>Prefer not to say</option></select>
+        </div>
+        <div class="field full"><label>Any family, cultural, or personal circumstances relevant to the student's journey (optional)</label><textarea name="family_context" placeholder="e.g. relocation, caregiving responsibilities, first-gen, financial considerations"></textarea></div>
+        <div class="field"><label>Geographic preference for college</label>
+          <select name="geo_preference">
+            <option value="">Select…</option>
+            <option>Stay close to home</option>
+            <option>Elsewhere in-state</option>
+            <option>Anywhere in the US</option>
+            <option>Open to international</option>
+            <option>No preference yet</option>
+          </select>
+        </div>
+        <div class="field"><label>Budget / financial aid considerations</label>
+          <select name="budget">
+            <option value="">Select…</option>
+            <option>Need significant aid</option>
+            <option>Some aid needed</option>
+            <option>Full-pay feasible</option>
+            <option>Not sure yet</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6 -->
+    <div class="section">
+      <div class="section-head"><span class="section-num">VI.</span><span class="section-title">Working Style & Personality</span></div>
+      <p class="section-desc">How the student actually operates — useful for matching majors, campus culture, and pacing.</p>
+      <hr class="rule">
+      <div class="grid single">
+        <div class="field">
+          <label>Independent research &nbsp;↔&nbsp; Structured teamwork</label>
+          <div class="scale"><span class="ends">Independent</span><input type="range" name="scale_teamwork" min="1" max="5" value="3"><span class="ends right">Team-based</span></div>
+        </div>
+        <div class="field">
+          <label>Big-picture thinker &nbsp;↔&nbsp; Detail-oriented</label>
+          <div class="scale"><span class="ends">Big picture</span><input type="range" name="scale_detail" min="1" max="5" value="3"><span class="ends right">Detail</span></div>
+        </div>
+        <div class="field">
+          <label>Prefers known paths &nbsp;↔&nbsp; Seeks the untested</label>
+          <div class="scale"><span class="ends">Known path</span><input type="range" name="scale_risk" min="1" max="5" value="3"><span class="ends right">Untested</span></div>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="field full"><label>How do you typically respond when something is genuinely hard?</label><textarea name="handles_challenge"></textarea></div>
+        <div class="field full"><label>Three words a close friend or teacher would use to describe you</label><input type="text" name="three_words"></div>
+      </div>
+    </div>
+
+    <!-- 7 -->
+    <div class="section">
+      <div class="section-head"><span class="section-num">VII.</span><span class="section-title">Goals & Direction</span></div>
+      <p class="section-desc">Where the student thinks they're headed — even if the answer is "not sure yet."</p>
+      <hr class="rule">
+      <div class="grid">
+        <div class="field full"><label>Possible college majors or fields under consideration</label><textarea name="possible_majors"></textarea></div>
+        <div class="field full"><label>Career(s) that currently sound appealing, and why</label><textarea name="career_interest"></textarea></div>
+        <div class="field full"><label>Dream schools or programs, if any come to mind</label><textarea name="dream_schools"></textarea></div>
+        <div class="field full"><label>What would make the next 1–2 years feel like a success to you?</label><textarea name="success_definition"></textarea></div>
+      </div>
+    </div>
+
+    <!-- 8 -->
+    <div class="section">
+      <div class="section-head"><span class="section-num">VIII.</span><span class="section-title">What You Want From Advising</span></div>
+      <hr class="rule">
+      <div class="grid">
+        <div class="field full">
+          <label>Where do you most want help right now?</label>
+          <div class="choice-row">
+            <label class="chip"><input type="checkbox" name="help_areas" value="Course/track planning"> Course & track planning</label>
+            <label class="chip"><input type="checkbox" name="help_areas" value="Major exploration"> Major exploration</label>
+            <label class="chip"><input type="checkbox" name="help_areas" value="Extracurricular strategy"> Extracurricular strategy</label>
+            <label class="chip"><input type="checkbox" name="help_areas" value="Competitions/research"> Competitions / research</label>
+            <label class="chip"><input type="checkbox" name="help_areas" value="Summer programs"> Summer programs</label>
+            <label class="chip"><input type="checkbox" name="help_areas" value="Test prep strategy"> Test prep strategy</label>
+            <label class="chip"><input type="checkbox" name="help_areas" value="College list building"> College list building</label>
+            <label class="chip"><input type="checkbox" name="help_areas" value="Essays"> Essays</label>
+          </div>
+        </div>
+        <div class="field full"><label>Anything else we should know before building your roadmap?</label><textarea name="additional_notes"></textarea></div>
+      </div>
+    </div>
+
+    <div class="recaptcha-row">
+      <!-- TEST KEY — swap for your own site key from
+           https://www.google.com/recaptcha/admin before going live.
+           Test keys always pass, so they provide zero real bot protection. -->
+      <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
+    </div>
+
+    <div class="submit-block">
+      <div class="submit-note">Submitting compiles your answers into a summary below, which you can copy or download and send to your advisor.</div>
+      <div class="btns">
+        <button type="button" class="btn-secondary" id="clear-btn">Clear form</button>
+        <button type="submit" class="btn-primary">Submit intake</button>
+      </div>
+    </div>
+    <div id="sheet-status" style="margin-top:10px; font-size:12.5px; font-family:var(--mono);"></div>
+  </form>
+
+  <div id="output-wrap">
+    <div class="output-head">Compiled Summary</div>
+    <div id="output"></div>
+    <div class="btns" style="margin-top:14px;">
+      <button type="button" class="btn-secondary" id="copy-btn">Copy to clipboard</button>
+      <button type="button" class="btn-primary" id="download-btn">Download as .txt</button>
+    </div>
+  </div>
+  </div>
+
+  <div class="privacy-note">
+    <div class="privacy-head">Privacy &amp; Data Use</div>
+    <p>This form collects the information you enter — academic background, interests, activities, and family/contact details — for one purpose only: to help Think4SAT build a personalized college advising plan for your student.</p>
+    <p>Submitted responses are sent directly to a private Google Sheet accessible only to Think4SAT staff. We do not sell, rent, or share this information with any third party, advertiser, or other organization.</p>
+    <p>While you're filling out the form, your in-progress answers are saved automatically in your own browser only (not sent anywhere) so an accidental refresh or closed tab doesn't erase your progress. That saved draft stays on your device and clears automatically once you submit, or any time you use "Clear form."</p>
+    <p>If you'd like your submitted information corrected or removed, contact us at <strong>info@think4sat.com</strong> or <strong>+1 (734) 972-3536</strong>.</p>
+  </div>
+
+</div>
+
+<script>
+document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-US', {year:'numeric', month:'long', day:'numeric'});
+
+// PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL BELOW (see setup instructions provided separately)
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyA-4_o0sc13VFoPKM6vAxoDFhlGYxsACro-4tA3aWlKFN3TLz7qGZa9g69AR-yZq0PMg/exec";
+
+const form = document.getElementById('intake-form');
+const outputWrap = document.getElementById('output-wrap');
+const output = document.getElementById('output');
+const submitBtn = form.querySelector('.btn-primary');
+const statusEl = document.getElementById('sheet-status');
+
+function setStatus(msg, color){
+  statusEl.textContent = msg;
+  statusEl.style.color = color || 'var(--ink-soft)';
+}
+
+// Small celebratory burst on successful submission. Uses the canvas-confetti
+// CDN library loaded in <head>; if that script fails to load for any reason
+// (offline, blocked CDN), this just quietly does nothing — it never blocks
+// or delays showing the actual success screen.
+function launchConfetti(){
+  if (typeof confetti !== 'function') return;
+  const colors = ['#c99a2e', '#1f3a5f', '#f3e6c4'];
+  confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 }, colors: colors });
+  setTimeout(function(){
+    confetti({ particleCount: 60, angle: 60, spread: 60, origin: { x: 0, y: 0.6 }, colors: colors });
+    confetti({ particleCount: 60, angle: 120, spread: 60, origin: { x: 1, y: 0.6 }, colors: colors });
+  }, 250);
+}
+
+// Warn immediately on page load if the URL looks wrong, so you don't
+// find out only after a student has already filled the form.
+(function validateScriptUrl(){
+  if (!SCRIPT_URL || SCRIPT_URL.indexOf("PASTE_YOUR_WEB_APP_URL_HERE") !== -1){
+    setStatus("⚠ Google Sheet sync is OFF — SCRIPT_URL is not set.", "#b3261e");
+  } else if (!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(SCRIPT_URL)){
+    setStatus("⚠ SCRIPT_URL doesn't look like a valid Apps Script /exec URL — double-check it.", "#b3261e");
+  }
+})();
+
+// --- Basic spam / accidental-resubmission protection ---------------------
+// These are lightweight, client-side deterrents (a genuinely determined bot
+// can bypass client-side JS entirely by POSTing straight to the Apps Script
+// URL). The matching Apps Script template checks the honeypot and required
+// fields server-side too, which covers that gap. For serious bot traffic,
+// adding Google reCAPTCHA is the next step up — ask if you'd like that added.
+const formLoadedAt = Date.now();
+const MIN_FILL_SECONDS = 4;      // reject submissions faster than this
+const RESUBMIT_COOLDOWN_MS = 60000; // 60s: block accidental double-submits from this browser
+
+const labels = {
+  student_name:"Student name", preferred_name:"Preferred name", school:"High school", grade_level:"Grade level",
+  parent_name:"Parent/guardian", contact:"Contact", program_track:"Track/program", gpa:"GPA",
+  current_courses:"Current courses", strong_subjects:"Strongest subjects", weak_subjects:"Hardest subjects",
+  testing_plan:"Testing plan", test_scores:"Test scores so far", competitions:"Academic competitions",
+  free_time:"Free-time choices", deep_interests:"Deep interests", self_directed_project:"Self-directed project",
+  interest_area:"Interest areas", influences:"Influences", activities_list:"Activities", leadership:"Leadership roles",
+  awards:"Awards/honors", work_research:"Work/research/volunteer", time_commitment:"Weekly time on activities",
+  signature_activity:"Signature activity", languages:"Languages at home", first_gen:"First-generation student",
+  family_context:"Family/personal context", geo_preference:"Geographic preference", budget:"Budget considerations",
+  scale_teamwork:"Independent (1) – Team-based (5)", scale_detail:"Big picture (1) – Detail (5)", scale_risk:"Known path (1) – Untested (5)",
+  handles_challenge:"Response to challenge", three_words:"Three words", possible_majors:"Possible majors",
+  career_interest:"Career interest", dream_schools:"Dream schools", success_definition:"Definition of success",
+  help_areas:"Areas wanting help", additional_notes:"Additional notes"
+};
+
+// --- Draft autosave, so an accidental refresh/closed tab doesn't lose
+// progress. Everything here stays local to this browser — nothing is sent
+// anywhere until the person actually clicks Submit. ---------------------
+const DRAFT_KEY = 'think4sat_intake_draft_v1';
+const draftNoteEl = document.getElementById('draft-note');
+
+function saveDraft(){
+  const draft = {};
+  Array.from(form.elements).forEach(function(el){
+    if (!el.name || el.name === 'website') return; // skip honeypot
+    if (el.type === 'checkbox' || el.type === 'radio'){
+      if (el.checked){
+        draft[el.name] = draft[el.name] || [];
+        draft[el.name].push(el.value);
+      }
+    } else {
+      draft[el.name] = el.value;
+    }
+  });
+  try {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    if (draftNoteEl) draftNoteEl.textContent = 'Draft auto-saved in this browser · ' + new Date().toLocaleTimeString();
+  } catch (err) {
+    // localStorage can fail (private browsing, storage full, etc.) — safe to ignore.
+  }
+}
+
+function restoreDraft(){
+  let raw;
+  try { raw = localStorage.getItem(DRAFT_KEY); } catch (err) { return; }
+  if (!raw) return;
+  let draft;
+  try { draft = JSON.parse(raw); } catch (err) { return; }
+
+  Array.from(form.elements).forEach(function(el){
+    if (!el.name || el.name === 'website' || !(el.name in draft)) return;
+    const val = draft[el.name];
+    if (el.type === 'checkbox' || el.type === 'radio'){
+      el.checked = Array.isArray(val) && val.indexOf(el.value) !== -1;
+    } else if (Array.isArray(val)) {
+      el.value = val[0] || '';
+    } else {
+      el.value = val;
+    }
+  });
+  if (draftNoteEl) draftNoteEl.textContent = 'Restored your previously unsaved answers.';
+}
+
+function clearDraft(){
+  try { localStorage.removeItem(DRAFT_KEY); } catch (err) {}
+  if (draftNoteEl) draftNoteEl.textContent = '';
+}
+
+restoreDraft();
+let saveDraftTimer = null;
+form.addEventListener('input', function(){
+  clearTimeout(saveDraftTimer);
+  saveDraftTimer = setTimeout(saveDraft, 400); // small debounce while typing
+});
+
+const originalBtnText = submitBtn.textContent;
+
+form.addEventListener('submit', function(e){
+  e.preventDefault();
+  const fd = new FormData(form);
+
+  // --- Spam checks -------------------------------------------------------
+  // 1) Honeypot: if this hidden field has anything in it, a bot filled it.
+  if ((fd.get('website') || '').trim() !== ''){
+    setStatus("Something went wrong submitting the form. Please refresh and try again.", "#b3261e");
+    return;
+  }
+  // 2) Too-fast submission: a real person needs at least a few seconds.
+  if (Date.now() - formLoadedAt < MIN_FILL_SECONDS * 1000){
+    setStatus("Please take a moment to review your responses before submitting.", "#b3261e");
+    return;
+  }
+  // 3) Resubmission cooldown: guards against accidental double-clicks/double
+  // submits from this same browser (not a defense against a determined
+  // attacker, since a fresh browser/incognito window resets it).
+  let lastSubmit;
+  try { lastSubmit = Number(localStorage.getItem('think4sat_last_submit') || 0); } catch (err) { lastSubmit = 0; }
+  if (lastSubmit && (Date.now() - lastSubmit) < RESUBMIT_COOLDOWN_MS){
+    setStatus("You've already submitted recently. If this wasn't you, please wait a moment and try again.", "#b3261e");
+    return;
+  }
+  // 4) reCAPTCHA: must be checked before we proceed. The token itself is
+  // also verified server-side in Apps Script — checking it here just avoids
+  // making a real person wait for a round trip only to be told "no."
+  if (typeof grecaptcha === 'undefined' || !grecaptcha.getResponse()){
+    setStatus("Please complete the reCAPTCHA verification before submitting.", "#b3261e");
+    return;
+  }
+
+  const data = {};
+  for (const [key, val] of fd.entries()){
+    if (data[key]) {
+      data[key] = Array.isArray(data[key]) ? [...data[key], val] : [data[key], val];
+    } else {
+      data[key] = val;
+    }
+  }
+
+  let text = "STUDENT DISCOVERY DOSSIER\n";
+  text += "Compiled: " + new Date().toLocaleDateString('en-US', {year:'numeric', month:'long', day:'numeric'}) + "\n";
+  text += "=".repeat(50) + "\n\n";
+
+  for (const key in labels){
+    let val = data[key];
+    if (val === undefined) val = "—";
+    if (Array.isArray(val)) val = val.join(", ");
+    if (!val || val === "") val = "—";
+    text += labels[key] + ":\n  " + val + "\n\n";
+  }
+
+  output.textContent = text;
+  // Compiled summary is stored but stays hidden until the person chooses
+  // "View submitted summary" on the success screen (or if sending fails).
+
+  // --- Send data to Google Sheet via Apps Script Web App ---
+  if (!SCRIPT_URL || SCRIPT_URL.indexOf("PASTE_YOUR_WEB_APP_URL_HERE") !== -1){
+    setStatus("⚠ Not sent to Google Sheet — SCRIPT_URL is not set in the code.", "#b3261e");
+    outputWrap.classList.add('show');
+    outputWrap.scrollIntoView({behavior:'smooth', block:'start'});
+    return;
+  }
+
+  submitBtn.textContent = "Submitting…";
+  submitBtn.disabled = true;
+  setStatus("Sending to Google Sheet…");
+
+  // Send with fetch() so we can actually read whether the request succeeded,
+  // instead of blindly trusting that something arrived (as a hidden-iframe
+  // POST would). FormData as the body keeps this a CORS-simple request
+  // (multipart/form-data), which Apps Script Web Apps handle without a
+  // failing CORS preflight.
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    body: fd
+  })
+  .then(function(response){
+    if (!response.ok){
+      throw new Error('Server responded with HTTP ' + response.status);
+    }
+    return response.text();
+  })
+  .then(function(responseText){
+    console.log('Apps Script response:', responseText);
+    submitBtn.textContent = "Submitted ✓";
+    setStatus("✓ Saved to Google Sheet.", "#1a7a3c");
+    try { localStorage.setItem('think4sat_last_submit', String(Date.now())); } catch (err) {}
+    clearDraft();
+    if (typeof grecaptcha !== 'undefined') grecaptcha.reset();
+    // Swap the form out for a clear success screen.
+    document.getElementById('form-wrap').style.display = 'none';
+    document.getElementById('success-screen').classList.add('show');
+    window.scrollTo({top:0, behavior:'smooth'});
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalBtnText;
+    launchConfetti();
+  })
+  .catch(function(err){
+    console.error('Submission failed:', err);
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalBtnText;
+    if (typeof grecaptcha !== 'undefined') grecaptcha.reset();
+    setStatus("⚠ Could not confirm this reached the Google Sheet (" + err.message + "). Check that the Apps Script deployment access is set to \"Anyone\" and that SCRIPT_URL is the current /exec URL.", "#b3261e");
+    outputWrap.classList.add('show');
+    outputWrap.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+});
+
+document.getElementById('submit-another-btn').addEventListener('click', function(){
+  form.reset();
+  outputWrap.classList.remove('show');
+  document.getElementById('success-screen').classList.remove('show');
+  document.getElementById('form-wrap').style.display = '';
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+
+document.getElementById('view-summary-btn').addEventListener('click', function(){
+  outputWrap.classList.toggle('show');
+  if (outputWrap.classList.contains('show')){
+    outputWrap.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+});
+
+document.getElementById('clear-btn').addEventListener('click', function(){
+  form.reset();
+  outputWrap.classList.remove('show');
+  clearDraft();
+});
+
+document.getElementById('copy-btn').addEventListener('click', function(){
+  navigator.clipboard.writeText(output.textContent).then(()=>{
+    const btn = document.getElementById('copy-btn');
+    const orig = btn.textContent;
+    btn.textContent = "Copied!";
+    setTimeout(()=>{ btn.textContent = orig; }, 1500);
+  });
+});
+
+document.getElementById('download-btn').addEventListener('click', function(){
+  const blob = new Blob([output.textContent], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const nameField = form.elements['student_name'].value.trim().replace(/\s+/g,'_') || 'student';
+  a.href = url;
+  a.download = 'intake_' + nameField + '.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+</script>
+</body>
+</html>
