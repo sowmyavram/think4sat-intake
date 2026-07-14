@@ -40,13 +40,12 @@
   /* Header / masthead */
   .masthead{
     border-bottom:3px double var(--navy);
-    padding-bottom:20px;
+    padding-bottom:24px;
     margin-bottom:36px;
     display:flex;
-    justify-content:space-between;
-    align-items:flex-end;
-    flex-wrap:wrap;
-    gap:16px;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
   }
   .masthead .eyebrow{
     font-family:var(--mono);
@@ -62,7 +61,7 @@
     font-family:var(--serif);
     font-size:34px;
     font-weight:600;
-    margin:8px 0 4px;
+    margin:10px 0 6px;
     color:var(--navy-deep);
     letter-spacing:.01em;
   }
@@ -70,13 +69,31 @@
     font-size:14px;
     color:var(--ink-soft);
     max-width:52ch;
+    margin:0 auto;
   }
-  .masthead .file-no{
-    font-family:var(--mono);
-    font-size:12px;
+  .masthead .brand{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+  }
+  .masthead .brand img{
+    width:110px;
+    height:110px;
+    object-fit:contain;
+    flex-shrink:0;
+  }
+  .masthead .brand-text{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  .masthead .brand-text .eyebrow{ margin-bottom:6px; }
+  .masthead .address{
+    font-size:11.5px;
     color:var(--ink-soft);
-    text-align:right;
-    white-space:nowrap;
+    margin-top:8px;
+    line-height:1.4;
   }
 
   /* Section blocks */
@@ -346,12 +363,15 @@
   </div>
 
   <div class="masthead">
-    <div>
-      <div class="eyebrow">Student Discovery Dossier</div>
-      <h1>College Advising Intake</h1>
-      <div class="sub">A working profile of interests, background, and goals — used to identify where a student is likely to shine and to build a personalized roadmap.</div>
+    <div class="brand">
+      <img src="data:image/png;base64,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" alt="Think4SAT logo">
+      <div class="brand-text">
+        <div class="eyebrow">Student Discovery Dossier</div>
+        <h1>College Advising Intake</h1>
+        <div class="sub">A working profile of interests, background, and goals — used to identify where a student is likely to shine and to build a personalized roadmap.</div>
+        <div class="address">2200 N Canton Center Rd, Suite #220 &amp; #230, Canton, Michigan 48187</div>
+      </div>
     </div>
-    <div class="file-no">FILE OPENED<br><span id="today-date"></span></div>
   </div>
 
   <div id="form-wrap">
@@ -596,10 +616,9 @@
 </div>
 
 <script>
-document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-US', {year:'numeric', month:'long', day:'numeric'});
 
-// PASTE YOUR GOOGLE APPS SCRIPT WEB APP  BELOW (see setup instructions provided separately)
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyjd-c648j39h-8hCvcV63qOA5vrepqZQOP1ozvw64SDLZP1VUygvOJzHDJyakDafS7ag/exec";
+// PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL BELOW (see setup instructions provided separately)
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyA-4_o0sc13VFoPKM6vAxoDFhlGYxsACro-4tA3aWlKFN3TLz7qGZa9g69AR-yZq0PMg/exec";
 
 const form = document.getElementById('intake-form');
 const outputWrap = document.getElementById('output-wrap');
